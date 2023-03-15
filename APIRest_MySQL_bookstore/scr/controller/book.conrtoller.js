@@ -104,7 +104,7 @@ function deleteBook(request, response){
     if(index != -1){
   
       mybooks.splice(index, 1);
-      res = {error:false, code:200, message: `El libro con ID: ${id} ha sido eliminado`, data: mybooks[index]};
+      res = {error:false, code:200, message: `El libro con ID: ${id} ha sido eliminado`, data: mybooks};
   
     } else {
       res = {error:false, code:200, message: `No se ha encontrado un libro con ID: ${id}`};
