@@ -1,5 +1,7 @@
 
-const {Book} = require('../models/bookClass')
+
+const {Book} = require('../models/bookClass');
+const connection = require('../dataBase'); // importación de la BBDD 
 
 let mybooks = [
     new Book('Mi vecino Totoro','Manga','Miyazaki',7,'https://m.media-amazon.com/images/I/81UbyXk3DAL._SL1500_.jpg',1,1),
@@ -27,20 +29,24 @@ function getStart(req, res){
 function getBook(request, response){
 
   let id = request.query.idBook;
-  let res;
+  let sql;
+  let params = [id]
 
   if(id != null){
-
-    let findBook = mybooks.filter(book => book.id_books == id);
-    res = findBook.length == 0 ?  {error: true, code:200, message: `No se ha encontrado ningun Libro con ID: ${id}`} : {error: false, codigo:200, data: findBook};
+    sql = `SELECT * FROM books WHERE id_book = ?`;
 
   } else {
-    res = mybooks ? {error: false, code:200, data: mybooks} : {error: true, code:200, message: `No se han encontrado libros en la biblioteca`}
+    sql = `SELECT * FROM books`;
   }
 
-  response.send(res)
-};
+  connection.query(sql, params, (err, result)=> {
+    if(err){
+      console.log(err);
+    } else {console.log(result);}
+  })
 
+  response.send(result)
+};
 
 
 // Añade un libro a la lusta de libros
