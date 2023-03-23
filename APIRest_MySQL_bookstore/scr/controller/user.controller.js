@@ -50,7 +50,7 @@ function postLogin(request, response){
                 answer = {error: false, code:200, message: 'usuario Logeado', data: null, result:result}
 
             }else {
-                answer = {error: false, code:200, message: 'datos sin coincidencia', data: null, result:result}
+                answer = {error: false, code:200, message: 'sin coincidencia', data: null, result:result}
             }
         }
 
