@@ -12,6 +12,7 @@ router.get('/', bookCtrl.getStart);
 
 router.post('/register', userCtrl.postRegister);
 router.post('/login', userCtrl.postLogin);
+router.put('/user', userCtrl.updateUser)
 
 
 

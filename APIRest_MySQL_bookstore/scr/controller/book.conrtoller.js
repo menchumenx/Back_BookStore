@@ -28,71 +28,102 @@ function getStart(req, res){
 // obtine los datos del libro pasados por ID y si no devuleve todos los libros de la libreria
 function getBook(request, response){
 
-  let id = request.query.idBook;
-  let sql;
-  let params = [id]
+  let answer;
 
-  if(id != null){
-    sql = `SELECT * FROM books WHERE id_book = ?`;
+  let idBook = request.query.id_book;
+  let idUser = request.query.id_user;
+
+  let sql;
+  let params = [idUser, idBook]
+
+  if(idBook != null && idBook !=null){
+    sql = `SELECT * FROM book
+           WHERE id_user = ? AND id_book = ?`;
 
   } else {
-    sql = `SELECT * FROM books`;
+    sql = `SELECT * FROM book
+          WHERE id_user = ?`;
   }
 
   connection.query(sql, params, (err, result)=> {
     if(err){
       console.log(err);
-    } else {console.log(result);}
+
+    } else {
+      console.log(result);
+      answer = {error:false, code: 200, message:'mostrando libros', data: result, result:null}
+    }
+    response.send(answer)
   })
 
-  response.send(result)
 };
 
 
-// Añade un libro a la lusta de libros
+// Añade un libro a la lista de libros de un usuario
 function postBook(request, response){
+  let answer;
+  let params = [request.body.title, 
+                request.body.type,
+                request.body.author,
+                request.body.price,
+                request.body.photo,
+                request.body.id_user]
 
-  let newBook = new Book (request.body.title, 
-                          request.body.type,
-                          request.body.author,
-                          request.body.price,
-                          request.body.photo,
-                          request.body.id_books);
+  let sql = `INSERT INTO book (title, type, author, price, photo, id_user)
+             VALUES (?,?,?,?,?,?)`
+  
+ connection.query(sql, params, (err, result)=>{
 
-  mybooks.push(newBook);
+  if(err){
+    console.log(err);
+  } else {
+    answer = {error: false, code: 200, message:`libro ${request.body.title} añadido al user ${request.body.id_user}`, data:null, result:result}
 
-  let res = {error: false, code:200, message:` el libro ${newBook.title} con ID: ${newBook.id_books} ha sido añadido a la lista de libros`}
+    console.log(result);
+  }
 
-  response.send(res)
+  response.send(answer);
+})
 };
-
 
 
 
 // Modifica los datos del ibro pasado por ID
 function editBook(request, response){
 
-  let res;
-  let id = request.body.id_books;
-  console.log(id);
+  let answer;
+  let params = [request.body.title,
+                request.body.type, 
+                request.body.author,
+                request.body.price,
+                request.body.photo, 
+                request.body.id_book];
 
-  if(id != null){
+  let sql = `UPDATE book SET 
+              title = COALESCE (?,title),
+              type = COALESCE (?,type), 
+              author = COALESCE (?, author), 
+              price = COALESCE (?,price), 
+              photo = COALESCE (?,photo) 
+              WHERE id_book=?`
 
-  let index = mybooks.findIndex(book => book.id_books == id)
+  if(params != null){
 
-      if (index != -1){
+    connection.query(sql, params, (err, result)=>{
 
-        mybooks[index] = request.body;
-        res = {error:false, code:200, message: `El libro con ID: ${id} ha sido modificado`, data: mybooks[index]};
+      if(err){
+        console.log(err);
 
       } else {
-        res = {error:false, code:200, message: `No se ha encontrado un libro con ID: ${id}`};
+        console.log(result);
+        answer = {error: false, code: 200, message:`libro ${request.body.id_book} modificado`, data:null, result:result}
+
       }
-      
-  } else { res = {error: true, code:200, message: `No se ha introducido un ID `} };
-
-  response.send(res);
-
+      response.send(answer);
+    })
+  } else {
+    console.log('no se han introducido datos');
+  }
 };
 
 
@@ -100,26 +131,24 @@ function editBook(request, response){
 // Elimina de la lista el libro pasado por ID
 function deleteBook(request, response){
 
-  let res;
-  let id = request.body.id_books;
+  let answer;
+  let params = [request.body.id_book];
+  console.log(params);
+  let sql = `DELETE FROM book WHERE id_book = ?` 
 
-  if(id != null){
+  if(request.body.id_book != null){
 
-    let index = mybooks.findIndex( book => book.id_books == id);
+    connection.query(sql, params, (err, result)=> {
+      if(err){
+        console.log(err);
 
-    if(index != -1){
-  
-      mybooks.splice(index, 1);
-      res = {error:false, code:200, message: `El libro con ID: ${id} ha sido eliminado`, data: mybooks};
-  
-    } else {
-      res = {error:false, code:200, message: `No se ha encontrado un libro con ID: ${id}`};
-    }
-  
-  } else {  res = {error: true, code:200, message: `No se ha introducido un ID `}; }
-
-response.send(res)
-  
+      } else {
+        console.log(result);
+        answer = {error: false, code: 200, message:`libro con ID ${request.body.id_book} eliminado`, data:null, result:result}
+      }
+      response.send(answer);
+    })
+  };
 };
 
 

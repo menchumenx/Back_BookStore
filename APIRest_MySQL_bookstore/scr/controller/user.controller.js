@@ -59,6 +59,33 @@ function postLogin(request, response){
 }
 
 
+// UPDATE USER
+function updateUser(request, response){
+    let answer;
+    const params = [request.body.name, 
+                    request.body.last_name,
+                    request.body.email,
+                    request.body.photo, 
+                    request.body.id_user];
+    let sql = `UPDATE user SET 
+                name = COALESCE (?,name),
+                last_name = COALESCE (?,last_name),
+                email = COALESCE (?,email),
+                photo = COALESCE (?,photo)
+                WHERE id_user = ?`
+
+    connection.query(sql, params, ((err, result)=>{
+        if(err){
+            console.log(err);
+            answer = {error: true, code:200, message: 'error al modificar  usuario', data: null, result:err}
+        } else{
+            console.log(result);
+            answer = {error: false, code:200, message: 'usuario modificado', data: null, info:result}
+    }
+        response.send(answer);
+    }))
+}
 
 
-module.exports = { postRegister, postLogin}
+
+module.exports = { postRegister, postLogin, updateUser}
